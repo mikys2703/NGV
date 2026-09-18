@@ -1,0 +1,95 @@
+name: CI
+
+# PR이 main으로 열리거나 갱신될 때마다 실행되는 지속적 통합(CI)/지속적 테스트(CT) 워크플로우.
+# 게이트 명령어는 .claude/skills/code-quality-gates/references/tools-and-thresholds.md와
+# 동일하게 유지한다 — 여기서 임의로 다른 임계값을 만들지 않는다.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 3.14 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: 의존성 설치
+        run: |
+          python -m pip install --upgrade pip
+          pip install lizard pylint radon coverage doxypypy
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+
+      - name: 단위 테스트 실행 (unittest)
+        run: python -m unittest discover -v
+
+      - name: 검사 대상 Python 파일 목록 작성
+        id: pyfiles
+        run: |
+          git ls-files '*.py' > py_files.txt
+          if [ -s py_files.txt ]; then
+            echo "has_py=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_py=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 커버리지 측정
+        if: steps.pyfiles.outputs.has_py == 'true'
+        run: |
+          python -m coverage run -m unittest discover
+          python -m coverage report -m
+
+      - name: 함수 라인수 · 순환복잡도 (lizard --length 50 --CCN 10)
+        if: steps.pyfiles.outputs.has_py == 'true'
+        run: xargs lizard --length 50 --CCN 10 < py_files.txt
+
+      - name: 중복 코드 검사 (pylint duplicate-code, min-similarity-lines=8)
+        if: steps.pyfiles.outputs.has_py == 'true'
+        run: xargs pylint --disable=all --enable=duplicate-code --min-similarity-lines=8 < py_files.txt
+
+      - name: 네이밍 규칙 검사 (pylint invalid-name)
+        if: steps.pyfiles.outputs.has_py == 'true'
+        run: xargs pylint --disable=all --enable=invalid-name < py_files.txt
+
+      - name: 주석 비율 검사 (radon raw, 파일별 ≥ 20%)
+        if: steps.pyfiles.outputs.has_py == 'true'
+        run: |
+          python - <<'PYEOF'
+          import json
+          import subprocess
+          import sys
+
+          files = [line.strip() for line in open("py_files.txt") if line.strip()]
+          violations = []
+          for filePath in files:
+              raw = json.loads(subprocess.check_output(["radon", "raw", "--json", filePath]))
+              data = raw[filePath]
+              loc = data["loc"] or 1
+              ratio = (data["comments"] + data["multi"]) / loc
+              if ratio < 0.20:
+                  violations.append((filePath, ratio))
+
+          for filePath, ratio in violations:
+              print(f"::error file={filePath}::주석 비율 {ratio:.1%} — 기준 20% 미달")
+
+          sys.exit(1 if violations else 0)
+          PYEOF
+
+      - name: Doxygen 형식 주석 검증
+        if: steps.pyfiles.outputs.has_py == 'true'
+        run: |
+          doxygen -g Doxyfile
+          sed -i 's/^EXTRACT_ALL .*/EXTRACT_ALL = YES/' Doxyfile
+          sed -i 's/^WARN_IF_UNDOCUMENTED .*/WARN_IF_UNDOCUMENTED = YES/' Doxyfile
+          echo 'FILTER_PATTERNS = *.py=doxypypy' >> Doxyfile
+          doxygen Doxyfile 2> doxygen_warnings.log
+          if [ -s doxygen_warnings.log ]; then
+            cat doxygen_warnings.log
+            exit 1
+          fi

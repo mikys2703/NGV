@@ -215,3 +215,47 @@ TDD 스킬을 다음 링크의 TDD 스킬로 변경해줘. 단, 기존 스킬에
 ```
 
 **응답 요약:** 세션이 재인식한 새 서브에이전트(`integration-tester`)와, 사용자가 별도로 이미 만들어둔 기존 미커밋 서브에이전트/스킬(`sw-system-tester`/`sw-system-test`, SWE.6 시스템(자격)시험용)을 확인. `sw-system-test` 스킬이 실제 조직 템플릿(`TPL-SWE6-001/002`)을 전혀 반영하지 않고 있던 것을 발견해(실제 열 구성: Test ID/SW Req/Level-Environment/Stimulus/Expected Result/Technique/Execution 등, "기능/비기능 별도 시트"나 "확정 근거" 열은 실제로 없음) unzip으로 직접 파싱한 뒤 `references/template.md`(+ `technique-selection.md`, `aspice-swe6.md`)로 재구성하고, ID 접두사로 기능/비기능을 구분하며 `[확정: ...]` 셀 표기로 대체하는 방식을 정의. ISO 26262-6 인용도 Clause 11(SW 안전요구사항 검증)로 좁혀 `tdd`(Clause 8/9)·`integration-testing`(Clause 10)과 절이 겹치지 않게 함. `sw-system-tester.md` 에이전트도 이에 맞춰 갱신. 세 테스트 스킬(`tdd`/`integration-testing`/`sw-system-test`)의 테스트 베이시스·검증 대상·산출물을 비교하는 표를 `aspice-swe6.md`에 두고, `integration-testing`의 SWE.6 경계 문단과 `tdd`의 새 "이 스킬의 범위(SWE.4)" 문단에서 서로를 명시적으로 참조하도록 연결해 세 스킬이 서로의 테스트 베이시스를 침범하지 않게 정리. 부수적으로 `code-quality-gates`의 순환복잡도 임계값 설명이 "CLAUDE.md에 없는 관례값"이라고 돼 있었으나 CLAUDE.md가 이미 10으로 명시하고 있어 오래된 설명이었음을 고쳤고, CLAUDE.md의 "단위 테스트 지침"(Branch 커버리지 100%)을 실제로 측정하는 게이트가 아직 없다는 것을 `code-quality-gates` SKILL.md에 명시적으로 남김(구현은 하지 않고 사용자 확인 필요 항목으로 표시). CLAUDE.md에 "통합 테스트 지침"/"시스템 테스트 지침"/"테스트 수준 간 경계" 절을 추가해 세 서브에이전트-스킬 매핑을 명문화했고, 이 과정에서 사용자가 동시에 파일 끝에 추가해둔 중복된 "통합 테스트 지침" 스텁 절과 "테스트 성공률은 100%여야 한다" 문구를 발견해 중복 제목은 제거하고 해당 문구는 유지·병합.
+
+---
+
+## 19
+
+**프롬프트:**
+```
+@CLAUDE.md 가 내가 작성한거랑 충돌난거같은데 해결해줘
+```
+
+**응답 요약:** git status/diff/log를 확인했으나 충돌 마커나 미커밋 변경이 전혀 없어(working tree clean, 직전 커밋 84f41b1과 일치) 어떤 종류의 "충돌"인지 불명확해 사용자에게 확인 질문.
+
+---
+
+## 20
+
+**프롬프트:**
+```
+CLAUDE.md 를 편집했고, 저장하려고 했더니 failed to save 'CLAUDE.md' 가 나타나고있어
+```
+
+**응답 요약:** 이것이 git 충돌이 아니라 VS Code 에디터가 "디스크의 파일이 에디터 버퍼와 달라졌다"고 판단해 저장을 거부한 것임을 설명(제가 세션 중 Edit 도구로 CLAUDE.md를 수정·커밋하는 동안 사용자 에디터에는 이전 버전이 열려있었기 때문). 디스크의 현재 내용은 git에 정상 커밋된 상태로 안전하다고 안내하고, VS Code에서 "Revert File" 후 재입력하거나 "Compare"로 수동 병합하는 두 가지 해결 경로를 제시.
+
+---
+
+## 21
+
+**프롬프트:**
+```
+아냐 CLAUDE.md 충돌 해결해줘
+```
+
+**응답 요약:** (사용자가 직전의 확인 질문 도구 호출을 거부) 디스크 파일 자체에는 고칠 충돌이 없음을 재확인하고, 미저장 내용을 잃지 않으면서 저장 충돌을 해소하는 VS Code 조작 순서(Revert 또는 Compare 후 재입력)를 질문 없이 바로 안내.
+
+---
+
+## 22
+
+**프롬프트:**
+```
+Git의 브랜치 정책을 적용해줘. 일반적으로 AI를 활용한 바이브 코딩을 이용해서 GitHub을 사용했을 때 적용되는 정책으로 해줘. Action을 설정해줘. PR이 진행될 때, Action을 실행해서 지속적 통합과 지속적 테스트를 수행해줘.
+```
+
+**응답 요약:** 저장소에 아직 `.github/`가 없고 실제 Python 소스/테스트 파일도 없는 상태임을 확인. `.github/workflows/ci.yml`을 생성 — `pull_request`(대상 `main`)에서 `unittest discover`로 테스트를 실행하고, Python 파일이 존재할 때만 `code-quality-gates` 스킬과 동일한 명령(lizard 라인수/CCN, pylint 중복코드/네이밍, radon 주석비율, doxygen 형식)을 그대로 재사용해 5가지 게이트를 CI에서도 강제하도록 구성(임의로 다른 임계값을 만들지 않음). 브랜치 보호 규칙은 GitHub 저장소 설정(서버 측 API)이라 이 세션 샌드박스에 `gh` CLI가 없어 직접 적용이 불가능함을 확인하고, `.github/BRANCH_POLICY.md`에 1인/AI 페어 프로그래밍용 표준 정책(PR 필수, CI 통과 필수, 관리자 예외 없음, force-push/삭제 금지, 병합 후 브랜치 자동삭제, 리뷰어 승인은 0으로 시작)과 이를 적용하는 `gh api` 명령(사용자 터미널에서 실행) 및 GitHub 웹 UI 수동 설정 경로를 함께 문서화.
