@@ -138,3 +138,25 @@ A-SPICE 4.1 버전 기준으로 CL2 수준의 산출물을 점검하는 스킬 �
 ```
 
 **응답 요약:** 실제 SWE.3 상세설계서 템플릿(`TPL-SWE3-001.docx`, 15개 절)과 UML/호출관계 템플릿(`TPL-SWE3-002.drawio`)을 unzip+perl로 직접 읽어 구조 확인. 같은 폴더의 `TPL-SBOM-001`(Python 의존성/FOSS 라이선스)을 통해 이 프로젝트의 구현 언어가 Python임을 파악. `.claude/skills/detailed-design/SKILL.md`와 참조 파일 5개(template/uml-call-diagram/aspice-swe3/iso26262-part6-unit-design/contracts-and-decision-tables/traceability-unit)를 생성 — 함수 계약(사전/사후조건)·의사코드·정책 의사결정표를 "핵심" 항목에 필수로 요구, ISO26262 Part6 Clause8의 C 계열 전용 설계원칙(포인터/동적메모리 제한 등)을 Python 기준으로 번역하는 표를 포함, ENG-TRC-001 매트릭스의 Architecture/Detailed Design/Code/SWE.4 열을 잇는 추적성 절차 정리. architecture-design 스킬과의 경계(아키텍처 결정을 상세설계에서 몰래 바꾸지 않기)도 명시. 서브에이전트 `.claude/agents/detailed-designer.md`도 생성.
+
+---
+
+## 12
+
+**프롬프트:**
+```
+커밋하고 푸시해
+```
+
+**응답 요약:** detailed-design 스킬/서브에이전트 관련 신규 파일(`.claude/agents/detailed-designer.md`, `.claude/skills/detailed-design/`)과 갱신된 `PROMPT.md`를 스테이징 후 커밋(`246d805`)하여 `origin/main`에 푸시.
+
+---
+
+## 13
+
+**프롬프트:**
+```
+구현에 대한 서브에이전트와 스킬도 만들어줘. @CLAUDE.md 의 구현 지침을 준수하는 스킬을 생성한다.
+```
+
+**응답 요약:** 사용자가 CLAUDE.md에 "구현 지침"(coding 서브에이전트가 담당, TDD 스킬 사용 필수, 품질지표: 함수라인수≤50/중복≤7줄/Doxygen주석≥20%/네이밍 3자이상 camelCase, Python 3.14+unittest)을 추가한 것을 확인. mkdir 실행 중 사용자가 자동 모드를 해제하고 중단시켜, 스킬 구성 방식(TDD 절차와 품질게이트를 하나로 합칠지 분리할지)과 품질측정 오픈소스 도구 조합(lizard/pylint/radon/doxygen 제안)을 먼저 질문으로 확인 — "분리" + "제안 조합"으로 답변받음. `.claude/skills/tdd/`(SKILL.md + red-green-refactor.md + test-case-derivation.md, Refactor 단계에서 code-quality-gates 스킬 호출하도록 구성)와 `.claude/skills/code-quality-gates/`(SKILL.md + tools-and-thresholds.md + doxygen-comment-format.md + naming-convention.md, 5개 게이트를 lizard --length 50 --CCN 10 / pylint duplicate-code --min-similarity-lines=8 / radon raw 주석비율 / pylint 네이밍규칙 / doxygen 경고로 실측)를 생성. CLAUDE.md가 지정한 정확한 이름의 서브에이전트 `.claude/agents/coding.md`(tdd+code-quality-gates 스킬을 순서대로 호출)도 생성. unittest 테스트메서드명이 `test`로 시작하는 camelCase면 프로젝트 네이밍 규칙과 unittest 탐색 규칙이 충돌하지 않는다는 점도 명시.
