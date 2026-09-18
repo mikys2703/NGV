@@ -116,3 +116,25 @@ A-SPICE 4.1 버전 기준으로 CL2 수준의 산출물을 점검하는 스킬 �
 ```
 
 **응답 요약:** 이번엔 리포지토리에 사용자가 실제 산출물 템플릿 라이브러리(`WP_Templates/`, `OEM_Sample/`)를 대량으로 추가해둔 것을 발견 — 아키텍처 설계서 템플릿(TPL-SWE2-001.docx, 15개 절), UML 템플릿(TPL-SWE2-002.drawio), 통합전략 템플릿(TPL-SWE5-001), 추적매트릭스 템플릿(TPL-TRC-001), 산출물 등록부(PRC-TPL-001) 등을 docx/xlsx 내부 XML을 직접 파싱해 실제 구조를 확인함(pandoc/libreoffice/python 미설치라 unzip+perl로 처리). 이 과정에서 이 리포지토리가 A-SPICE/ISO26262 교육용 가상 프로젝트(VJ-ECL-2026, 전자식 차일드락 제어 SW, ASIL B, SW-only PC/SIL 검증, Synetics 저작권 교육자료)라는 맥락도 파악. `.claude/skills/architecture-design/SKILL.md`와 참조 파일 7개(template/uml-diagram/aspice-swe2/iso26262-part6/solid-coupling-cohesion/interface-contract/integration-order)를 실제 템플릿 구조에 맞춰 생성 — SWE.2 BP6(대안 아키텍처 평가)를 근거로 "후보 구조 제시 후 사용자 선택" 단계를 필수 단계로 명시, 결합도/응집도/SOLID 판정 기준표, 인터페이스 계약 필드, 의존성 그래프 기반 통합순서(위상정렬) 방법론 포함. 서브에이전트 `.claude/agents/architecture-designer.md`도 생성. requirements-analysis 스킬의 template.md도 실제 TPL-SWE1 템플릿으로 갱신할 수 있음을 다음 턴에 사용자에게 제안 예정.
+
+---
+
+## 10
+
+**프롬프트:**
+```
+커밋하고 푸시해
+```
+
+**응답 요약:** 범위 제한 없이 요청받아, 현재 untracked 상태였던 모든 항목(`.claude/`, `.gitignore`, `OEM_Sample/`, `PROMPT.md`, `WP_Templates/`, 총 43개 파일)을 스테이징 후 한 커밋(`52d0b77`)으로 `origin/main`에 푸시 완료.
+
+---
+
+## 11
+
+**프롬프트:**
+```
+상세설계를 위한 서브에이전트와 스킬 초안도 만들어줘
+```
+
+**응답 요약:** 실제 SWE.3 상세설계서 템플릿(`TPL-SWE3-001.docx`, 15개 절)과 UML/호출관계 템플릿(`TPL-SWE3-002.drawio`)을 unzip+perl로 직접 읽어 구조 확인. 같은 폴더의 `TPL-SBOM-001`(Python 의존성/FOSS 라이선스)을 통해 이 프로젝트의 구현 언어가 Python임을 파악. `.claude/skills/detailed-design/SKILL.md`와 참조 파일 5개(template/uml-call-diagram/aspice-swe3/iso26262-part6-unit-design/contracts-and-decision-tables/traceability-unit)를 생성 — 함수 계약(사전/사후조건)·의사코드·정책 의사결정표를 "핵심" 항목에 필수로 요구, ISO26262 Part6 Clause8의 C 계열 전용 설계원칙(포인터/동적메모리 제한 등)을 Python 기준으로 번역하는 표를 포함, ENG-TRC-001 매트릭스의 Architecture/Detailed Design/Code/SWE.4 열을 잇는 추적성 절차 정리. architecture-design 스킬과의 경계(아키텍처 결정을 상세설계에서 몰래 바꾸지 않기)도 명시. 서브에이전트 `.claude/agents/detailed-designer.md`도 생성.
