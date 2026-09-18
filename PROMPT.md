@@ -160,3 +160,25 @@ A-SPICE 4.1 버전 기준으로 CL2 수준의 산출물을 점검하는 스킬 �
 ```
 
 **응답 요약:** 사용자가 CLAUDE.md에 "구현 지침"(coding 서브에이전트가 담당, TDD 스킬 사용 필수, 품질지표: 함수라인수≤50/중복≤7줄/Doxygen주석≥20%/네이밍 3자이상 camelCase, Python 3.14+unittest)을 추가한 것을 확인. mkdir 실행 중 사용자가 자동 모드를 해제하고 중단시켜, 스킬 구성 방식(TDD 절차와 품질게이트를 하나로 합칠지 분리할지)과 품질측정 오픈소스 도구 조합(lizard/pylint/radon/doxygen 제안)을 먼저 질문으로 확인 — "분리" + "제안 조합"으로 답변받음. `.claude/skills/tdd/`(SKILL.md + red-green-refactor.md + test-case-derivation.md, Refactor 단계에서 code-quality-gates 스킬 호출하도록 구성)와 `.claude/skills/code-quality-gates/`(SKILL.md + tools-and-thresholds.md + doxygen-comment-format.md + naming-convention.md, 5개 게이트를 lizard --length 50 --CCN 10 / pylint duplicate-code --min-similarity-lines=8 / radon raw 주석비율 / pylint 네이밍규칙 / doxygen 경고로 실측)를 생성. CLAUDE.md가 지정한 정확한 이름의 서브에이전트 `.claude/agents/coding.md`(tdd+code-quality-gates 스킬을 순서대로 호출)도 생성. unittest 테스트메서드명이 `test`로 시작하는 camelCase면 프로젝트 네이밍 규칙과 unittest 탐색 규칙이 충돌하지 않는다는 점도 명시.
+
+---
+
+## 14
+
+**프롬프트:**
+```
+ㄱ
+```
+
+**응답 요약:** 직전 턴들의 패턴(스킬 생성 직후 커밋+푸시 요청)에 따라 "진행해"로 해석. CLAUDE.md 갱신분(구현 지침 추가)과 새로 만든 tdd/code-quality-gates 스킬, coding 서브에이전트를 모두 스테이징해 커밋(`c4e46d3`) 후 `origin/main`에 푸시.
+
+---
+
+## 15
+
+**프롬프트:**
+```
+TDD 스킬을 다음 링크의 TDD 스킬로 변경해줘. 단, 기존 스킬에서 반영할 부분은 적용해줘. 테스트 코드를 작성할 때, 사용한 기법, 긍정/부정 케이스 여부, 테스크 함수에도 Doxygent 형식의 테스트 목적을 포함한 설명을 작성하도록 설정해줘. https://github.com/obra/superpowers
+```
+
+**응답 요약:** GitHub API로 `obra/superpowers` 저장소의 `skills/test-driven-development/SKILL.md`와 `writing-good-tests.md`를 가져와 내용을 확인. 기존 `.claude/skills/tdd/`의 상세설계 연동(함수 계약/경계값/의사결정표 → 테스트 도출)과 `code-quality-gates` 스킬 연계는 유지하면서, superpowers의 철칙("실패하는 테스트 없이 프로덕션 코드 없음"), Verify Red/Verify Green 필수 검증, 흔한 합리화·위험 신호 목록, 거울 검증/변화감지기/mock 남용 방지 원칙(원칙 1·2, 게이트 함수, 뮤테이션 점검)을 병합해 `SKILL.md`와 `references/red-green-refactor.md`를 재작성하고, 새 참조 파일 `references/writing-good-tests.md`를 추가. 요청한 테스트 문서화 규칙(사용 기법·긍정/부정 케이스·Doxygen 목적 설명)을 위해 새 참조 파일 `references/test-documentation.md`를 만들어 `"""! @brief ... @details 기법: ... | 케이스: 긍정/부정 """` 형식과 기법 분류표(동등분할법/오류추정법/경계값분석/의사결정표기반테스트/상태전이기반테스트)를 정의했고, `references/test-case-derivation.md`의 계약/경계값/의사결정표 매핑표에 기법·케이스 열과 Doxygen 예시를 추가해 서로 연결. 모든 스킬 콘텐츠는 한국어로 작성.
