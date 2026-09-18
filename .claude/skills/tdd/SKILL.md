@@ -9,6 +9,10 @@ description: TDD(Red-Green-Refactor) 방식으로 Python 코드를 구현합니�
 
 > 이 스킬은 [obra/superpowers](https://github.com/obra/superpowers)의 `test-driven-development` 스킬을 기반으로, 이 프로젝트의 상세설계 연동(`detailed-design` 스킬)과 품질 게이트(`code-quality-gates` 스킬), 그리고 테스트 문서화 규칙을 결합해 재구성한 것입니다.
 
+## 이 스킬의 범위 (SWE.4) — 다른 테스트 수준과의 경계
+
+이 스킬의 테스트 베이시스는 **상세설계의 함수 계약·경계값·의사결정표**이며, 검증 대상은 **함수/모듈 내부 로직**(화이트박스)입니다. 컴포넌트 간 인터페이스 상호작용 검증(그레이박스)은 `integration-testing` 스킬(SWE.5)의 몫이고, SW 요구사항 명세서 기준의 전체 소프트웨어 블랙박스 검증은 `sw-system-test` 스킬(SWE.6)의 몫입니다 — 이 스킬 안에서 그 두 가지를 대신 하려 하지 마세요. 세 스킬의 비교표는 `sw-system-test` 스킬의 `references/aspice-swe6.md`를 참고하세요.
+
 ## 철칙 (Iron Law)
 
 ```

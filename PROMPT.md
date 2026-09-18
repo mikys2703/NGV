@@ -182,3 +182,36 @@ TDD 스킬을 다음 링크의 TDD 스킬로 변경해줘. 단, 기존 스킬에
 ```
 
 **응답 요약:** GitHub API로 `obra/superpowers` 저장소의 `skills/test-driven-development/SKILL.md`와 `writing-good-tests.md`를 가져와 내용을 확인. 기존 `.claude/skills/tdd/`의 상세설계 연동(함수 계약/경계값/의사결정표 → 테스트 도출)과 `code-quality-gates` 스킬 연계는 유지하면서, superpowers의 철칙("실패하는 테스트 없이 프로덕션 코드 없음"), Verify Red/Verify Green 필수 검증, 흔한 합리화·위험 신호 목록, 거울 검증/변화감지기/mock 남용 방지 원칙(원칙 1·2, 게이트 함수, 뮤테이션 점검)을 병합해 `SKILL.md`와 `references/red-green-refactor.md`를 재작성하고, 새 참조 파일 `references/writing-good-tests.md`를 추가. 요청한 테스트 문서화 규칙(사용 기법·긍정/부정 케이스·Doxygen 목적 설명)을 위해 새 참조 파일 `references/test-documentation.md`를 만들어 `"""! @brief ... @details 기법: ... | 케이스: 긍정/부정 """` 형식과 기법 분류표(동등분할법/오류추정법/경계값분석/의사결정표기반테스트/상태전이기반테스트)를 정의했고, `references/test-case-derivation.md`의 계약/경계값/의사결정표 매핑표에 기법·케이스 열과 Doxygen 예시를 추가해 서로 연결. 모든 스킬 콘텐츠는 한국어로 작성.
+
+---
+
+## 16
+
+**프롬프트:**
+```
+커밋하고 푸시해
+```
+
+**응답 요약:** 새로 작성한 tdd 스킬 관련 파일(`.claude/skills/tdd/` 전체)과 `PROMPT.md` 갱신분을 스테이징해 커밋(`99c5348`) 후 `origin/main`에 푸시.
+
+---
+
+## 17
+
+**프롬프트:**
+```
+소프트웨어 통합 테스트를 위한 서브에이전트와 스킬 생성해줘. 테스트 기법은 ISO26262 Part 6에 근거하고, 함수 커버리지 및 Call 커버리지는 100%달성해줘. 테스트 베이시스인 아키텍처 설계서의 인터페이스와 통합순서에 근거해서 테스트 진행하도록 해줘.
+```
+
+**응답 요약:** 실제 SWE.5 산출물 템플릿 3종(`TPL-SWE5-001` 통합전략 및 통합시험 명세서 docx 14개 절, `TPL-SWE5-002` 통합시험 케이스 xlsx, `TPL-SWE5-003` 통합시험 결과서 xlsx)을 unzip+perl로 직접 파싱해 열 구성(Test ID/Trace/Integration Item/Stimulus/Expected Result/Technique/Automation 등)을 확인. 기존 `architecture-design` 스킬의 인터페이스 계약(`interface-contract.md`)과 통합순서(`integration-order.md`) 산출물을 테스트 베이시스로 재사용하도록 연결. `.claude/skills/integration-testing/SKILL.md`와 참조 파일 6개(template/aspice-swe5/iso26262-part6-integration-test/test-case-derivation-integration/coverage-measurement/traceability-integration)를 생성 — ISO 26262-6 Clause 10의 통합시험 기법(요구사항기반/인터페이스/오류주입/자원사용/백투백)과 ASIL별 권고수준, 함수 커버리지·콜 커버리지 지표를 정리하고, "100% 목표치는 표준이 아니라 이번 프로젝트가 지정한 기준"임을 명시. 100% 실측 방법으로 `coverage.py`+`lizard`(함수 커버리지)와 `code2flow`+`sys.setprofile` 트레이서(콜 커버리지)를 이용한 구체적 절차를 정의하고, 미달 시 케이스 추가 또는 도달불가 근거 문서화를 강제. 통합순서의 스텁/드라이버가 인터페이스 계약을 그대로 구현해야 한다는 원칙과 자동화 스크립트는 `tdd` 스킬의 테스트 문서화 형식을 재사용하도록 연결. 서브에이전트 `.claude/agents/integration-tester.md`도 생성.
+
+---
+
+## 18
+
+**프롬프트:**
+```
+새로 추가한 서브에이전트와 스킬 인식해줘. 서브에이전트와 각 서브에이전트에서 사용하는 스킬의 경계를 명확히 정리해줘. 서로 중복되는 내용이 없도록 만들어줘.
+```
+
+**응답 요약:** 세션이 재인식한 새 서브에이전트(`integration-tester`)와, 사용자가 별도로 이미 만들어둔 기존 미커밋 서브에이전트/스킬(`sw-system-tester`/`sw-system-test`, SWE.6 시스템(자격)시험용)을 확인. `sw-system-test` 스킬이 실제 조직 템플릿(`TPL-SWE6-001/002`)을 전혀 반영하지 않고 있던 것을 발견해(실제 열 구성: Test ID/SW Req/Level-Environment/Stimulus/Expected Result/Technique/Execution 등, "기능/비기능 별도 시트"나 "확정 근거" 열은 실제로 없음) unzip으로 직접 파싱한 뒤 `references/template.md`(+ `technique-selection.md`, `aspice-swe6.md`)로 재구성하고, ID 접두사로 기능/비기능을 구분하며 `[확정: ...]` 셀 표기로 대체하는 방식을 정의. ISO 26262-6 인용도 Clause 11(SW 안전요구사항 검증)로 좁혀 `tdd`(Clause 8/9)·`integration-testing`(Clause 10)과 절이 겹치지 않게 함. `sw-system-tester.md` 에이전트도 이에 맞춰 갱신. 세 테스트 스킬(`tdd`/`integration-testing`/`sw-system-test`)의 테스트 베이시스·검증 대상·산출물을 비교하는 표를 `aspice-swe6.md`에 두고, `integration-testing`의 SWE.6 경계 문단과 `tdd`의 새 "이 스킬의 범위(SWE.4)" 문단에서 서로를 명시적으로 참조하도록 연결해 세 스킬이 서로의 테스트 베이시스를 침범하지 않게 정리. 부수적으로 `code-quality-gates`의 순환복잡도 임계값 설명이 "CLAUDE.md에 없는 관례값"이라고 돼 있었으나 CLAUDE.md가 이미 10으로 명시하고 있어 오래된 설명이었음을 고쳤고, CLAUDE.md의 "단위 테스트 지침"(Branch 커버리지 100%)을 실제로 측정하는 게이트가 아직 없다는 것을 `code-quality-gates` SKILL.md에 명시적으로 남김(구현은 하지 않고 사용자 확인 필요 항목으로 표시). CLAUDE.md에 "통합 테스트 지침"/"시스템 테스트 지침"/"테스트 수준 간 경계" 절을 추가해 세 서브에이전트-스킬 매핑을 명문화했고, 이 과정에서 사용자가 동시에 파일 끝에 추가해둔 중복된 "통합 테스트 지침" 스텁 절과 "테스트 성공률은 100%여야 한다" 문구를 발견해 중복 제목은 제거하고 해당 문구는 유지·병합.
